@@ -1,6 +1,6 @@
-import Image from "next/image";
-import Link from "next/link";
-import styles from "../styles/CardContainer.module.css";
+import Image from 'next/image'
+import Link from 'next/link'
+import styles from '../styles/CardContainer.module.css'
 
 const MovieCard = ({ movie }) => {
   return (
@@ -16,7 +16,7 @@ const MovieCard = ({ movie }) => {
         <p className={styles.date}>{movie.release_date}</p>
       </div>
     </Link>
-  );
-};
+  )
+}
 
-export default MovieCard;
+export default MovieCard
