@@ -1,10 +1,9 @@
-import axios from "axios";
-import server from "@/config";
-import styles from "../../../styles/Movie.module.css";
-import Image from "next/image";
+import axios from 'axios'
+import server from '@/config'
+import styles from '../../styles/Movie.module.css'
+import Image from 'next/image'
 
-const Movie = ({ movie }) => {
-  console.log(movie);
+const Item = ({ data: movie }) => {
   return (
     <div className={styles.container}>
       <div className={styles.itemsContainer}>
@@ -21,6 +20,7 @@ const Movie = ({ movie }) => {
               width={1000}
               height={600}
               className={styles.image}
+              alt={movie.title}
             />
           </div>
         </div>
@@ -30,8 +30,8 @@ const Movie = ({ movie }) => {
           Release Date: <span>{movie.release_date}</span>
         </h4>
         <h4 className={styles.genres}>
-          Genres:{" "}
-          <span>{movie.genres.map((genre) => genre.name).join(", ")}</span>
+          Genres:{' '}
+          <span>{movie.genres.map((genre) => genre.name).join(', ')}</span>
         </h4>
 
         <h4 className={styles.runtime}>
@@ -39,34 +39,30 @@ const Movie = ({ movie }) => {
         </h4>
       </div>
     </div>
-  );
-};
-
-export default Movie;
-
-export async function getStaticProps(context) {
-  const { id } = context.params;
-  const res = await axios(
-    `${server}/movie/${id}?api_key=${process.env.API_KEY}&language=en-US&page=1`
-  );
-  const movie = res.data;
-
-  return {
-    props: { movie },
-  };
+  )
 }
 
-export async function getStaticPaths() {
-  const res = await axios(
-    `${server}/top_rated?api_key=${process.env.API_KEY}&language=en-US&page=1`
-  );
-  const movies = res.data.results;
+export default Item
 
-  const ids = movies.map((movie) => movie.id);
-  const paths = ids.map((id) => ({ params: { id: id.toString() } }));
+export async function getServerSideProps({ query: { contentType, id } }) {
+  try {
+    // this sets the default to movie
+    let urlType = 'movie'
+    // this changes based off the route you are on.
+    if (contentType === 'TvShows') {
+      urlType = 'tv'
+    }
+    const { data } = await axios(
+      `${server}/${urlType}/${id}?api_key=${process.env.API_KEY}&language=en-US&page=1`
+    )
 
-  return {
-    paths,
-    fallback: false,
-  };
+    return {
+      props: { data },
+    }
+  } catch (err) {
+    console.error(err)
+    return {
+      props: {},
+    }
+  }
 }
